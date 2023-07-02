@@ -19,7 +19,7 @@ Couple of examples how to create basic REST API.
 
 PostgresSQL will be added into the stack.
 
-Examples of how to use coroutines / channels / flows .
+Examples of how to use coroutines / channels / flows.
 
 Testability of API / Services. Working with mocks.
 
@@ -29,3 +29,15 @@ Testability of API / Services. Working with mocks.
 Hey that's super welcome! 
 
 Either open PR or reach me on my email `krason.tomas@gmail.com` regarding any ides.
+
+# Package structure
+
+**application** -> contains code for running Koin, Server modules etc.
+
+**clients** -> contains clients that extract or load data from/to different servers. **Clients** functions SHOULD return **models**.
+
+**controllers** -> contains code specifying what endpoints will be available on this server. **Controllers** SHOULD NOT return **models**.
+
+**models** -> internal representation of objects. **Models** SHOULD NOT be `@Serializable`
+
+**services** -> contains business logic
