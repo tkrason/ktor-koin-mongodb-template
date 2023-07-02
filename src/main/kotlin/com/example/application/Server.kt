@@ -5,6 +5,7 @@ import com.example.application.plugins.configureHTTP
 import com.example.application.plugins.configureMonitoring
 import com.example.application.plugins.configureSecurity
 import com.example.application.plugins.configureSerialization
+import com.example.application.plugins.registerSwagger
 import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -28,4 +29,5 @@ private fun Application.configure(config: Config) {
     configureHTTP()
     configureMonitoring()
     configureSerialization()
+    registerSwagger()
 }

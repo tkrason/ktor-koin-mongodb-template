@@ -39,6 +39,11 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     implementation("com.sksamuel.hoplite:hoplite-yaml:$hopliteVersion")
 
+    implementation("io.github.smiley4:ktor-swagger-ui:2.2.0") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "org.yaml", module = "snakeyaml")
+    }
+
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
     implementation("io.ktor:ktor-serialization-jackson:2.3.1")

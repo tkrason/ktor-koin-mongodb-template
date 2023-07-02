@@ -17,26 +17,25 @@ class CatFactController(
     private val catFactClient: CatFactClient,
     private val inMemoryFastCatFactService: InMemoryFastCatFactService,
     private val inMemorySlowCatFactService: InMemorySlowCatFactService,
-) : Controller {
-// TODO: Group them app under one
+) : Controller(basePath = "/cat-fact") {
 
     override fun registerRoutes(route: Route) {
         route.getFactFromApi()
         route.inMemoryFact()
     }
 
-    private fun Route.getFactFromApi() = get("/api-cat-fact") {
+    private fun Route.getFactFromApi() = get("/from-api") {
         val catFact = catFactClient.getCatFact()
         call.respond(catFact.toResponseDto())
     }
 
     private fun Route.inMemoryFact() {
-        route("/in-memory") {
+        route("/from-memory") {
             get("/fast") {
-                getInMemoryFastFact().toResponseDto()
+                call.respond(getInMemoryFastFact().toResponseDto())
             }
             get("/slow") {
-                getInMemorySlowFact().toResponseDto()
+                call.respond(getInMemorySlowFact().toResponseDto())
             }
         }
     }
