@@ -1,0 +1,5 @@
+port: 8080
+apiKey: apiKey
+
+catFactConfig:
+  baseUrl: "https://catfact.ninja"
