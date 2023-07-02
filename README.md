@@ -1,5 +1,7 @@
 # Ktor + Koin backend template
 
+Run docker compose
+
 To build the app run `./gradlew build`
 
 To run the app run `ENV=local ./gradlew run` This will use the `local.yaml` file which contains defaults for local development.

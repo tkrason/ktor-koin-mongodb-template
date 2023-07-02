@@ -1,12 +1,17 @@
 package com.example.controller.catfact
 
 import com.example.controller.Controller
+import com.example.controller.catfact.dto.SaveCatFactsRequestBodyListWrapper
+import com.example.controller.catfact.dto.toModels
 import com.example.controller.catfact.dto.toResponseDto
 import com.example.services.CatFactService
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.core.annotation.Singleton
 
@@ -17,7 +22,10 @@ class CatFactController(
 
     override fun registerRoutes(route: Route) {
         route.getFactFromApi()
-        route.inMemoryFact()
+        route.getFactFromMemory()
+        route.getFactFromDatabase()
+
+        route.saveAllFactsToDatabase()
     }
 
     private fun Route.getFactFromApi() = get("/from-api") {
@@ -25,14 +33,24 @@ class CatFactController(
         call.respond(catFact.toResponseDto())
     }
 
-    private fun Route.inMemoryFact() {
+    private fun Route.getFactFromMemory() {
         route("/from-memory") {
             get("/fast") {
-                call.respond(catFactService.getFastCatFact())
+                call.respond(catFactService.getFastCatFact().toResponseDto())
             }
             get("/slow") {
-                call.respond(catFactService.getSlowCatFact())
+                call.respond(catFactService.getSlowCatFact().toResponseDto())
             }
         }
+    }
+
+    private fun Route.getFactFromDatabase() = get("/from-db") {
+        call.respond(catFactService.asyncGetFactFromDb().await().toResponseDto())
+    }
+
+    private fun Route.saveAllFactsToDatabase() = post("/save-to-db") {
+        val facts = call.receive<SaveCatFactsRequestBodyListWrapper>()
+        catFactService.asyncSaveFactsToDb(facts.toModels()).await()
+        call.respond(HttpStatusCode.Created)
     }
 }
