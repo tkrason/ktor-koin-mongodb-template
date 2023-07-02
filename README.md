@@ -34,10 +34,12 @@ Either open PR or reach me on my email `krason.tomas@gmail.com` regarding any id
 
 **application** -> contains code for running Koin, Server modules etc.
 
-**clients** -> contains clients that extract or load data from/to different servers. **Clients** functions SHOULD return **models**.
+**client** -> contains clients that extract or load data from/to different servers. **Client** functions SHOULD return **model**.
 
-**controllers** -> contains code specifying what endpoints will be available on this server. **Controllers** SHOULD NOT return **models**.
+**controller** -> contains code specifying what endpoints will be available on this server. **Controller** SHOULD NOT return **model**.
 
-**models** -> internal representation of objects. **Models** SHOULD NOT be `@Serializable`
+**model** -> internal representation of objects. **Model** SHOULD NOT be `@Serializable`
 
-**services** -> contains business logic
+**service** -> contains business logic
+
+**repository** -> access to DB layers

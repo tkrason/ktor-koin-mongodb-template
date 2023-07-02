@@ -1,7 +1,7 @@
 package com.example.application
 
 import com.example.application.plugins.BEARER_SECURITY_AUTH
-import com.example.controllers.Controller
+import com.example.controller.Controller
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.route

@@ -1,8 +1,8 @@
-package com.example.clients.catfact
+package com.example.client.catfact
 
 import com.example.application.config.Config
-import com.example.clients.catfact.dto.CatFactDto
-import com.example.models.CatFact
+import com.example.client.catfact.dto.CatFactDto
+import com.example.model.CatFact
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation

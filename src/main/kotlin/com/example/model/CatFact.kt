@@ -1,4 +1,4 @@
-package com.example.models
+package com.example.model
 
 data class CatFact(
     val fact: String,

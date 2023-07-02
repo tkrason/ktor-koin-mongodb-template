@@ -1,4 +1,4 @@
-package com.example.clients.catfact.dto
+package com.example.client.catfact.dto
 
 import kotlinx.serialization.Serializable
 

@@ -1,6 +1,6 @@
-package com.example.controllers.catfact.dto
+package com.example.controller.catfact.dto
 
-import com.example.models.CatFact
+import com.example.model.CatFact
 import kotlinx.serialization.Serializable
 
 @Serializable
