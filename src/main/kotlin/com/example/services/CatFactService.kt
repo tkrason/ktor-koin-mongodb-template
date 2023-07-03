@@ -15,8 +15,11 @@ class CatFactService(
     private val catFactRepository: CatFactRepository,
 ) {
     suspend fun getFactFromApi() = catFactClient.getCatFact()
+
     fun getFastCatFact() = fastInMemoryCatFactRepository.getCatFact()
     suspend fun getSlowCatFact() = slowInMemoryCatFactRepository.getCatFact()
+
     suspend fun asyncGetFactFromDb() = catFactRepository.findFirstCatFact()
     suspend fun asyncSaveFactsToDb(catFacts: List<CatFact>) = catFactRepository.saveAll(catFacts)
+    suspend fun asyncFindFactById(id: Int) = catFactRepository.findCatFactById(id)
 }

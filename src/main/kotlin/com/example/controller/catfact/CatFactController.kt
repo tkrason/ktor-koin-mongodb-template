@@ -4,6 +4,7 @@ import com.example.controller.Controller
 import com.example.controller.catfact.dto.SaveCatFactsRequestBodyListWrapper
 import com.example.controller.catfact.dto.toModels
 import com.example.controller.catfact.dto.toResponseDto
+import com.example.controller.catfact.dto.toResponseListDto
 import com.example.services.CatFactService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
@@ -13,6 +14,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -54,5 +56,12 @@ class CatFactController(
         val facts = call.receive<SaveCatFactsRequestBodyListWrapper>()
         catFactService.asyncSaveFactsToDb(facts.toModels()).await()
         call.respond(HttpStatusCode.Created)
+    }
+
+    private fun Route.findCatFact() = get("/fact") {
+        val id: Int by call.request.queryParameters
+
+        val fact = catFactService.asyncFindFactById(id).await()
+        call.respond(fact.toResponseListDto())
     }
 }

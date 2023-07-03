@@ -9,3 +9,4 @@ data class CatFactResponseDto(
 )
 
 fun CatFact.toResponseDto() = CatFactResponseDto(catFact = fact)
+fun List<CatFact>.toResponseListDto() = map { it.toResponseDto() }
