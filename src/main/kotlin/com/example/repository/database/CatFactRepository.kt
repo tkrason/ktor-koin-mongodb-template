@@ -1,35 +1,27 @@
 package com.example.repository.database
 
 import com.example.application.Db
-import com.example.application.fastBatchInsert
 import com.example.model.CatFact
+import com.example.repository.AsyncCrudRepository
 import com.example.repository.database.table.CatFactTable
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import kotlinx.coroutines.Deferred
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.koin.core.annotation.Singleton
 
 @Singleton
 class CatFactRepository(
-    private val database: Db,
-) {
+    database: Db,
+) : AsyncCrudRepository<CatFactTable, CatFact>(database, CatFactTable) {
 
-    suspend fun findFirstCatFact() = database.asyncExecuteTransaction {
-        CatFactTable
-            .selectAll()
-            .take(1)
-            .map { CatFact(fact = it[CatFactTable.catFact]) }
-            .first()
+    override fun resultRowToModel(resultRow: ResultRow): CatFact {
+        return CatFact(fact = resultRow[CatFactTable.catFact])
     }
 
-    suspend fun saveAll(catFacts: List<CatFact>) = database.asyncExecuteTransaction {
-        CatFactTable.fastBatchInsert(data = catFacts) {
-            this[CatFactTable.catFact] = it.fact
-        }
+    override fun BatchInsertStatement.toBatchInsertStatement(model: CatFact) {
+        this[CatFactTable.catFact] = model.fact
     }
 
-    suspend fun findCatFactById(id: Int) = database.asyncExecuteTransaction {
-        CatFactTable
-            .select { CatFactTable.id eq id }
-            .map { CatFact(fact = it[CatFactTable.catFact]) }
-    }
+    suspend fun findFirstCatFactByIdAsync(id: Int): Deferred<CatFact?> =
+        findFirstWhereOrNullAsync { CatFactTable.id eq id }
 }
