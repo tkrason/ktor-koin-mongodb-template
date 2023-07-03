@@ -8,8 +8,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -17,7 +19,8 @@ class Db(
     config: Config,
 ) {
     private val instance = Database.connect(
-        url = "${config.databaseConfig.url}${config.databaseConfig.databaseName}",
+        // reWriteBatchedInserts=true provides 2-3x speed improvement: https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert
+        url = "${config.databaseConfig.url}${config.databaseConfig.databaseName}?reWriteBatchedInserts=true",
         driver = config.databaseConfig.driver,
         user = config.databaseConfig.user,
         password = config.databaseConfig.password,
@@ -34,8 +37,15 @@ class Db(
     private val postgresDbDispatcher = Dispatchers.IO.limitedParallelism(16)
 
     suspend fun <T> asyncExecuteTransaction(block: () -> T): Deferred<T> {
-        return suspendedTransactionAsync(postgresDbDispatcher) {
-            transaction(instance) { block() }
+        return suspendedTransactionAsync(context = postgresDbDispatcher, db = instance) {
+            block()
         }
     }
 }
+
+/**
+ * Speeds up batch insert considerably, by now waiting for DB to fill in generated values (e.g. id of row).
+ * Use when it's not necessary to return the generated ID's back to the user.
+ */
+fun <T> Table.fastBatchInsert(data: List<T>, block: BatchInsertStatement.(T) -> Unit) =
+    batchInsert(data = data, shouldReturnGeneratedValues = false) { block(it) }
