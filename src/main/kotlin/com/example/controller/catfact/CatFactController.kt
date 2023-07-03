@@ -20,12 +20,14 @@ class CatFactController(
     private val catFactService: CatFactService,
 ) : Controller(basePath = "/cat-fact") {
 
-    override fun registerRoutes(route: Route) {
-        route.getFactFromApi()
-        route.getFactFromMemory()
-        route.getFactFromDatabase()
+    override fun Route.routesForRegistrationOnBasePath() {
+        getFactFromApi()
+        getFactFromMemory()
+        getFactFromDatabase()
 
-        route.saveAllFactsToDatabase()
+        findCatFact()
+
+        saveAllFactsToDatabase()
     }
 
     private fun Route.getFactFromApi() = get("/from-api") {
