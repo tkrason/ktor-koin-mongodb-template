@@ -5,9 +5,7 @@ import com.example.model.CatFact
 import com.example.repository.FastInMemoryCatFactRepository
 import com.example.repository.SlowInMemoryCatFactRepository
 import com.example.repository.database.CatFactRepository
-import kotlinx.coroutines.Deferred
 import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.ResultRow
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -22,7 +20,7 @@ class CatFactService(
     fun getFastCatFact(): CatFact = fastInMemoryCatFactRepository.getCatFact()
     suspend fun getSlowCatFact(): CatFact = slowInMemoryCatFactRepository.getCatFact()
 
-    suspend fun findFirstFactOrNullAsync(): Deferred<CatFact?> = catFactRepository.findFirstWhereOrNullAsync { Op.TRUE }
-    suspend fun findFactByIdOrNullAsync(id: Int): Deferred<CatFact?> = catFactRepository.findFirstCatFactByIdAsync(id)
-    suspend fun insertManyFactsAsync(catFacts: List<CatFact>): Deferred<List<ResultRow>> = catFactRepository.insertManyFastAsync(catFacts)
+    fun findFirstFactOrNull(): CatFact? = catFactRepository.findFirstWhereOrNull { Op.TRUE }
+    fun findFactByIdOrNull(id: Int): CatFact? = catFactRepository.findFirstCatFactById(id)
+    fun insertManyFacts(catFacts: List<CatFact>): Unit = catFactRepository.insertManyFastAsync(catFacts)
 }
