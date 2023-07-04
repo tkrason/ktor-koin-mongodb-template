@@ -1,12 +1,14 @@
 package com.example.controller.catfact
 
 import com.example.application.DatabaseUtils
+import com.example.application.transactionalDelete
 import com.example.application.transactionalGet
 import com.example.application.transactionalPost
 import com.example.controller.Controller
 import com.example.controller.catfact.dto.SaveCatFactsRequestBodyListWrapper
 import com.example.controller.catfact.dto.toModels
 import com.example.controller.catfact.dto.toResponseDto
+import com.example.controller.common.dto.toResponseDto
 import com.example.model.CatFact
 import com.example.services.CatFactService
 import io.ktor.http.HttpStatusCode
@@ -19,6 +21,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.coroutines.awaitAll
 import org.koin.core.annotation.Singleton
+import java.util.UUID
 
 @Singleton
 class CatFactController(
@@ -27,6 +30,8 @@ class CatFactController(
 ) : Controller(basePath = "/cat-fact") {
 
     override fun Route.routesForRegistrationOnBasePath() {
+        count()
+
         getFactFromApi()
         getFactFromMemory()
         getFactFromDatabaseOrFromApi()
@@ -35,6 +40,8 @@ class CatFactController(
         multipleAsyncDbRequests()
 
         saveAllFactsToDatabase()
+
+        delete()
     }
 
     private fun Route.getFactFromApi() = get("/from-api") {
@@ -61,7 +68,7 @@ class CatFactController(
     }
 
     private fun Route.findCatFact() = transactionalGet(databaseUtils, "/fact") {
-        val id: Int by call.request.queryParameters
+        val id: UUID by call.request.queryParameters
         val fact = catFactService.findFactByIdOrNull(id) ?: getFactFromApiAndSaveItToDb()
 
         call.respond(fact.toResponseDto())
@@ -75,12 +82,24 @@ class CatFactController(
 
     private fun Route.multipleAsyncDbRequests() = transactionalGet(databaseUtils, "/multiple-facts") {
         // Simulating fetching multiple sources at one
-        // (of course this should be one request, just imagine that each call is to different table)
+        // Result will be empty array, as we are generating random UUIDs without match chance
+        // (just imagine that each call is to different table)
         val facts = (0..100).map {
-            databaseUtils.executeInNewTransactionAsync { catFactService.findFactByIdOrNull(it) }
-        }.awaitAll().mapNotNull { it?.toResponseDto() }
+            databaseUtils.executeInNewTransactionAsync { catFactService.findFactByIdOrNull(UUID.randomUUID()) }
+        }.awaitAll()
 
-        call.respond(facts)
+        call.respond(facts.mapNotNull { it?.toResponseDto() })
+    }
+
+    private fun Route.count() = transactionalGet(databaseUtils, "/count") {
+        call.respond(catFactService.count().toResponseDto())
+    }
+
+    private fun Route.delete() = transactionalDelete(databaseUtils, "/delete-where") {
+        val fact: String by call.request.queryParameters
+
+        val deletedCount = catFactService.deleteWhereCatFactMatching(CatFact(fact = fact))
+        call.respond(deletedCount.toResponseDto())
     }
 
     private suspend fun getFactFromApiAndSaveItToDb(): CatFact {

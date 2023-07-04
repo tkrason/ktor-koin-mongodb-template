@@ -4,6 +4,7 @@ import com.example.application.config.Config
 import com.example.repository.database.table.CatFactTable
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.util.KtorDsl
@@ -99,3 +100,13 @@ fun Route.transactionalPost(
     path: String,
     routeDefinition: suspend PipelineContext<Unit, ApplicationCall>.() -> Unit,
 ) = post(path) { databaseUtils.inTransaction { routeDefinition() } }
+
+/**
+ * Wraps DELETE request with transaction, allowing accessing DB.
+ */
+@KtorDsl
+fun Route.transactionalDelete(
+    databaseUtils: DatabaseUtils,
+    path: String,
+    routeDefinition: suspend PipelineContext<Unit, ApplicationCall>.() -> Unit,
+) = delete(path) { databaseUtils.inTransaction { routeDefinition() } }

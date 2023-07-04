@@ -1,10 +1,12 @@
 package com.example.repository
 
 import com.example.application.fastBatchInsert
+import org.jetbrains.exposed.sql.ISqlExpressionBuilder
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
@@ -15,6 +17,12 @@ abstract class CrudRepository<TABLE : Table, MODEL>(
 
     abstract fun resultRowToModel(resultRow: ResultRow): MODEL
     abstract fun BatchInsertStatement.toBatchInsertStatement(model: MODEL)
+
+    fun count(): Long {
+        return table
+            .selectAll()
+            .count()
+    }
 
     fun findAll(): List<MODEL> {
         return table
@@ -37,5 +45,9 @@ abstract class CrudRepository<TABLE : Table, MODEL>(
 
     fun insertManyFastAsync(toInsert: List<MODEL>) {
         table.fastBatchInsert(data = toInsert) { toBatchInsertStatement(it) }
+    }
+
+    fun deleteWhere(condition: TABLE.(ISqlExpressionBuilder) -> Op<Boolean>): Int {
+        return table.deleteWhere(op = condition)
     }
 }

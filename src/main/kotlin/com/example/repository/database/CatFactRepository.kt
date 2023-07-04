@@ -6,6 +6,7 @@ import com.example.repository.database.table.CatFactTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.koin.core.annotation.Singleton
+import java.util.UUID
 
 @Singleton
 class CatFactRepository : CrudRepository<CatFactTable, CatFact>(CatFactTable) {
@@ -18,5 +19,5 @@ class CatFactRepository : CrudRepository<CatFactTable, CatFact>(CatFactTable) {
         this[CatFactTable.catFact] = model.fact
     }
 
-    fun findFirstCatFactById(id: Int): CatFact? = findFirstWhereOrNull { CatFactTable.id eq id }
+    fun findFirstCatFactById(id: UUID): CatFact? = findFirstWhereOrNull { CatFactTable.id eq id }
 }
