@@ -17,6 +17,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import kotlinx.coroutines.awaitAll
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -31,6 +32,7 @@ class CatFactController(
         getFactFromDatabaseOrFromApi()
 
         findCatFact()
+        multipleAsyncDbRequests()
 
         saveAllFactsToDatabase()
     }
@@ -69,6 +71,16 @@ class CatFactController(
         val facts = call.receive<SaveCatFactsRequestBodyListWrapper>()
         catFactService.insertManyFacts(facts.toModels())
         call.respond(HttpStatusCode.Created)
+    }
+
+    private fun Route.multipleAsyncDbRequests() = transactionalGet(databaseUtils, "/multiple-facts") {
+        // Simulating fetching multiple sources at one
+        // (of course this should be one request, just imagine that each call is to different table)
+        val facts = (0..100).map {
+            databaseUtils.executeInNewTransactionAsync { catFactService.findFactByIdOrNull(it) }
+        }.awaitAll().mapNotNull { it?.toResponseDto() }
+
+        call.respond(facts)
     }
 
     private suspend fun getFactFromApiAndSaveItToDb(): CatFact {

@@ -4,6 +4,6 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
 
 object CatFactTable : Table() {
-    val id: Column<Int> = integer("id").autoIncrement()
+    val id: Column<Int> = integer("id").autoIncrement().uniqueIndex()
     val catFact: Column<String> = varchar("catFact", length = 256)
 }
