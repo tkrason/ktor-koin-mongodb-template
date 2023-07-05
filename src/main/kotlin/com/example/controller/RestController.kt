@@ -11,6 +11,7 @@ import com.example.model.CatFact
 import com.example.model.Model
 import com.example.services.CatFactService
 import com.example.services.ModelService
+import io.github.smiley4.ktorswaggerui.dsl.delete
 import io.github.smiley4.ktorswaggerui.dsl.get
 import io.github.smiley4.ktorswaggerui.dsl.post
 import io.ktor.http.HttpStatusCode
@@ -22,6 +23,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import io.ktor.util.reflect.TypeInfo
 import io.ktor.util.reflect.typeInfo
+import kotlinx.coroutines.flow.toList
 import org.koin.core.annotation.Singleton
 
 abstract class RestController<MODEL : Model, REQUEST_DTO : Any, RESPONSE_DTO : Any>(
@@ -33,9 +35,14 @@ abstract class RestController<MODEL : Model, REQUEST_DTO : Any, RESPONSE_DTO : A
     final override fun Route.routesForRegistrationOnBasePath() {
         if (autoRegisterRoutes) {
             countAll()
+
+            findAll()
             findFirstByIdOrNull()
+
             saveOne()
             saveMany()
+
+            deleteOneById()
         }
 
         additionalRoutesForRegistration()
@@ -50,6 +57,7 @@ abstract class RestController<MODEL : Model, REQUEST_DTO : Any, RESPONSE_DTO : A
 
     abstract fun requestDtoTypeInfo(): TypeInfo
     abstract fun responseDtoTypeInfo(): TypeInfo
+    abstract fun listResponseDtoTypeInfo(): TypeInfo
 
     private suspend fun ApplicationCall.getListRequestDto() = receive<ListWrapperDto<REQUEST_DTO>>()
 
@@ -58,6 +66,14 @@ abstract class RestController<MODEL : Model, REQUEST_DTO : Any, RESPONSE_DTO : A
     }) {
         val count = service.countAll()
         call.respond(count.toResponseDto())
+    }
+
+    fun Route.findAll() = get("/${getNameOfModelForRestPath()}/all", {
+        response { HttpStatusCode.OK to { body<ListWrapperDto<RESPONSE_DTO>>() } }
+    }) {
+        val allModels = service.findAll().toList()
+        val response = ListWrapperDto(allModels.map { it.toResponseDto() })
+        call.respond(response, listResponseDtoTypeInfo())
     }
 
     fun Route.findFirstByIdOrNull() = get("/${getNameOfModelForRestPath()}/{id}", {
@@ -92,6 +108,15 @@ abstract class RestController<MODEL : Model, REQUEST_DTO : Any, RESPONSE_DTO : A
         service.saveMany(models)
         call.respond(HttpStatusCode.Created)
     }
+
+    fun Route.deleteOneById() = delete("/${getNameOfModelForRestPath()}", {
+        request { queryParameter<String>("id") }
+        response { HttpStatusCode.OK to { body<CountResponseDto>() } }
+    }) {
+        val id = call.parameters.getOrFail("id")
+        val count = service.deleteOneById(id)
+        call.respond(count.toResponseDto())
+    }
 }
 
 @Singleton(binds = [Controller::class])
@@ -109,6 +134,7 @@ class TestController(
 
     override fun requestDtoTypeInfo() = typeInfo<SaveCatFactRequestBodyListItem>()
     override fun responseDtoTypeInfo() = typeInfo<CatFactResponseDto>()
+    override fun listResponseDtoTypeInfo() = typeInfo<ListWrapperDto<CatFactResponseDto>>()
 
     override fun CatFact.toResponseDto() = toDto()
     override fun SaveCatFactRequestBodyListItem.requestToModel() = toModel()

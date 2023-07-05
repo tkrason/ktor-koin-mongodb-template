@@ -3,6 +3,6 @@ package com.example.model
 import org.bson.types.ObjectId
 
 data class CatFact(
-    val objectId: ObjectId? = null,
+    override val id: ObjectId?,
     val fact: String,
-) : Model(objectId)
+) : Model()

@@ -15,6 +15,9 @@ abstract class ModelService<MODEL : Model>(
     suspend fun save(model: MODEL) = repository.insertOne(model).let { }
     suspend fun saveMany(models: List<MODEL>) = repository.insertMany(models).let { }
 
+    suspend fun findAll() = repository.findManyAsFlow()
     suspend fun findModelByIdOrNull(id: String) = repository.findFirstOrNull { Filters.eq("id", ObjectId(id)) }
     suspend fun findFirstFactOrNull() = repository.findManyAsFlow().firstOrNull()
+
+    suspend fun deleteOneById(id: String) = repository.deleteWhere { Filters.eq("id", ObjectId(id)) }
 }
