@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CatFactResponseDto(
+    val id: String?,
     val catFact: String,
 )
 
-fun CatFact.toResponseDto() = CatFactResponseDto(catFact = fact)
-fun List<CatFact>.toResponseListDto() = map { it.toResponseDto() }
+fun CatFact.toDto() = CatFactResponseDto(id = id?.toHexString(), catFact = fact)

@@ -14,4 +14,4 @@ data class SaveCatFactRequestBodyListItem(
 )
 
 fun SaveCatFactsRequestBodyListWrapper.toModels() = data.map { it.toModel() }
-fun SaveCatFactRequestBodyListItem.toModel() = CatFact(id = null, fact = fact)
+fun SaveCatFactRequestBodyListItem.toModel() = CatFact(objectId = null, fact = fact)

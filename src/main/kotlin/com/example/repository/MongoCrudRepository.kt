@@ -1,6 +1,7 @@
 package com.example.repository
 
 import com.example.application.Mongo
+import com.example.model.Model
 import com.mongodb.client.result.InsertManyResult
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.bson.conversions.Bson
 
-abstract class MongoCrudRepository<ENTITY : Any>(
+abstract class MongoCrudRepository<MODEL : Model>(
     mongo: Mongo,
     databaseName: String,
 ) {
@@ -17,9 +18,9 @@ abstract class MongoCrudRepository<ENTITY : Any>(
     private val database: MongoDatabase = mongo.client.getDatabase(databaseName)
     private val collection by lazy { database.selectRepositoryCollection() }
 
-    abstract fun MongoDatabase.selectRepositoryCollection(): MongoCollection<ENTITY>
+    abstract fun MongoDatabase.selectRepositoryCollection(): MongoCollection<MODEL>
 
-    suspend fun <RETURN> withCollection(block: suspend MongoCollection<ENTITY>.() -> RETURN): RETURN {
+    suspend fun <RETURN> withCollection(block: suspend MongoCollection<MODEL>.() -> RETURN): RETURN {
         return collection.block()
     }
 
@@ -28,11 +29,11 @@ abstract class MongoCrudRepository<ENTITY : Any>(
         elements.count()
     }
 
-    suspend fun insertMany(entities: List<ENTITY>): InsertManyResult = withCollection {
+    suspend fun insertMany(entities: List<MODEL>): InsertManyResult = withCollection {
         insertMany(entities)
     }
 
-    suspend fun insertOne(entity: ENTITY) = withCollection {
+    suspend fun insertOne(entity: MODEL) = withCollection {
         insertOne(entity)
     }
 

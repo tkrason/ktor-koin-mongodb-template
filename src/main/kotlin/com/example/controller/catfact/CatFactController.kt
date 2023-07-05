@@ -2,8 +2,8 @@ package com.example.controller.catfact
 
 import com.example.controller.Controller
 import com.example.controller.catfact.dto.SaveCatFactsRequestBodyListWrapper
+import com.example.controller.catfact.dto.toDto
 import com.example.controller.catfact.dto.toModels
-import com.example.controller.catfact.dto.toResponseDto
 import com.example.controller.common.dto.toResponseDto
 import com.example.model.CatFact
 import com.example.services.CatFactService
@@ -45,27 +45,27 @@ class CatFactController(
 
     private fun Route.getFactFromApi() = get("/from-api") {
         val catFact = getFactFromApiAndSaveItToDb()
-        call.respond(catFact.toResponseDto())
+        call.respond(catFact.toDto())
     }
 
     private fun Route.getFactFromDatabaseOrFromApi() = get("/from-db") {
         val factOrNull = catFactService.findFirstFactOrNull()
         val response = factOrNull ?: getFactFromApiAndSaveItToDb()
 
-        call.respond(response.toResponseDto())
+        call.respond(response.toDto())
     }
 
     private fun Route.findCatFactOrGetOneFromApi() = get("/fact") {
         val id: String by call.request.queryParameters
 
-        val fact = catFactService.findFactByIdOrNull(id) ?: getFactFromApiAndSaveItToDb()
+        val fact = catFactService.findModelByIdOrNull(id) ?: getFactFromApiAndSaveItToDb()
 
-        call.respond(fact.toResponseDto())
+        call.respond(fact.toDto())
     }
 
     private fun Route.saveAllFactsToDatabase() = post("/save-to-db") {
         val facts = call.receive<SaveCatFactsRequestBodyListWrapper>()
-        catFactService.insertManyFacts(facts.toModels())
+        catFactService.saveMany(facts.toModels())
         call.respond(HttpStatusCode.Created)
     }
 
@@ -74,10 +74,10 @@ class CatFactController(
         // Result will be empty array, as we are generating random ObjectId's without match chance
         // (just imagine that each call is to different table)
         val facts = (0..100).map {
-            async(Dispatchers.IO) { catFactService.findFactByIdOrNull(ObjectId.get().toHexString()) }
+            async(Dispatchers.IO) { catFactService.findModelByIdOrNull(ObjectId.get().toHexString()) }
         }.awaitAll()
 
-        call.respond(facts.mapNotNull { it?.toResponseDto() })
+        call.respond(facts.mapNotNull { it?.toDto() })
     }
 
     private fun Route.count() = get("/count") {
