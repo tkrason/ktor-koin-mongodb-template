@@ -10,7 +10,7 @@ data class Config(
     val port: Int,
     val apiKey: String,
     val catFactConfig: CatFactConfig,
-    val databaseConfig: DatabaseConfig,
+    val mongoConfig: MongoConfig,
 )
 
 private fun loadConfig(environment: String): Config {

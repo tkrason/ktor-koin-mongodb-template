@@ -1,12 +1,8 @@
 port: 8080
 apiKey: apiKey
 
-databaseConfig:
-  url: "jdbc:postgresql://localhost:5432/"
-  driver: "org.postgresql.Driver"
-  user: "postgres"
-  password: "postgres"
-  databaseName: "ktor_sample"
+mongoConfig:
+  connectionString: "mongodb://mongo:mongo@localhost"
 
 catFactConfig:
   baseUrl: "https://catfact.ninja"

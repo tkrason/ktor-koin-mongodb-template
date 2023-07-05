@@ -2,12 +2,14 @@
 version: '3.1'
 
 services:
-  db:
-    image: postgres:15.3
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - ./sql/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+  mongo:
     ports:
-      - "5432:5432"
+      - '27017:27017'
+    restart: always
+    logging:
+      options:
+        max-size: 1g
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
+    image: mongo:latest

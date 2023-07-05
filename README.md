@@ -1,4 +1,4 @@
-# Ktor + Koin backend template
+# Ktor + Koin + MongoDB backend template
 
 Run docker compose
 
@@ -13,13 +13,15 @@ To run the app run `ENV=local ./gradlew run` This will use the `local.yaml` file
 **Koin** as DI _(Dependency Injection)_ was chosen as it's comfortable to use for development
 especially with the addition of `koin-annotations`. Just mark class as `@Singleton` and it's ready to be used.
 
+**MongoDB** provides great Kotlin integration utilizing `Flow`. Seamless integration with `data` objects.
+
 # What's inside?
 
 Couple of examples how to create basic REST API.
 
 # What's next?
 
-PostgresSQL will be added into the stack.
+~~PostgresSQL will be added into the stack.~~ Replaced with Mongo
 
 Examples of how to use coroutines / channels / flows.
 

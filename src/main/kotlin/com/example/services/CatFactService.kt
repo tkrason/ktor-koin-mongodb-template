@@ -2,31 +2,30 @@ package com.example.services
 
 import com.example.client.catfact.CatFactClient
 import com.example.model.CatFact
-import com.example.repository.FastInMemoryCatFactRepository
-import com.example.repository.SlowInMemoryCatFactRepository
-import com.example.repository.database.CatFactRepository
-import com.example.repository.database.table.CatFactTable
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import com.example.repository.CatFactRepository
+import com.mongodb.client.model.Filters
+import kotlinx.coroutines.flow.firstOrNull
+import org.bson.types.ObjectId
 import org.koin.core.annotation.Singleton
-import java.util.UUID
 
 @Singleton
 class CatFactService(
     private val catFactClient: CatFactClient,
-    private val fastInMemoryCatFactRepository: FastInMemoryCatFactRepository,
-    private val slowInMemoryCatFactRepository: SlowInMemoryCatFactRepository,
     private val catFactRepository: CatFactRepository,
 ) {
     suspend fun getFactFromApi(): CatFact = catFactClient.getCatFact()
 
-    fun getFastCatFact(): CatFact = fastInMemoryCatFactRepository.getCatFact()
-    suspend fun getSlowCatFact(): CatFact = slowInMemoryCatFactRepository.getCatFact()
+    suspend fun countAll() = catFactRepository.count()
+    suspend fun save(catFact: CatFact) = catFactRepository.insertOne(catFact)
+    suspend fun findFactByIdOrNull(id: String) = catFactRepository.findFirstOrNull {
+        Filters.eq(CatFact::id.name, ObjectId(id))
+    }
 
-    fun findFirstFactOrNull(): CatFact? = catFactRepository.findFirstWhereOrNull { Op.TRUE }
-    fun findFactByIdOrNull(id: UUID): CatFact? = catFactRepository.findFirstCatFactById(id)
-    fun insertManyFacts(catFacts: List<CatFact>): Unit = catFactRepository.insertManyFastAsync(catFacts)
+    suspend fun findFirstFactOrNull() = catFactRepository.findManyAsFlow().firstOrNull()
 
-    fun count(): Long = catFactRepository.count()
-    fun deleteWhereCatFactMatching(catFact: CatFact): Int = catFactRepository.deleteWhere { CatFactTable.catFact eq catFact.fact }
+    suspend fun insertManyFacts(catFacts: List<CatFact>): Unit = catFactRepository.insertMany(catFacts).let { }
+
+    suspend fun deleteWhereCatFactMatching(fact: String) = catFactRepository.deleteWhere {
+        Filters.eq(CatFact::fact.name, fact)
+    }
 }
