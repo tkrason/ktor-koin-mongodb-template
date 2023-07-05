@@ -1,5 +1,6 @@
 package com.example.services
 
+import com.example.application.Mongo
 import com.example.model.Model
 import com.example.repository.MongoCrudRepository
 import com.mongodb.client.model.Filters
@@ -12,12 +13,16 @@ abstract class ModelService<MODEL : Model>(
 
     suspend fun countAll() = repository.count()
 
-    suspend fun save(model: MODEL) = repository.insertOne(model).let { }
-    suspend fun saveMany(models: List<MODEL>) = repository.insertMany(models).let { }
+    suspend fun save(model: MODEL) = repository.insertOne(model)
+    suspend fun saveMany(models: List<MODEL>) = repository.insertMany(models)
+
+    suspend fun updateOne(model: MODEL) = repository.updateOneById(model)
 
     suspend fun findAll() = repository.findManyAsFlow()
-    suspend fun findModelByIdOrNull(id: String) = repository.findFirstOrNull { Filters.eq("id", ObjectId(id)) }
+    suspend fun findModelByIdOrNull(id: String) =
+        repository.findFirstOrNull { Filters.eq(Mongo.MONGO_ID_FIELD, ObjectId(id)) }
+
     suspend fun findFirstFactOrNull() = repository.findManyAsFlow().firstOrNull()
 
-    suspend fun deleteOneById(id: String) = repository.deleteWhere { Filters.eq("id", ObjectId(id)) }
+    suspend fun deleteOneById(id: String) = repository.deleteWhere { Filters.eq(Mongo.MONGO_ID_FIELD, ObjectId(id)) }
 }

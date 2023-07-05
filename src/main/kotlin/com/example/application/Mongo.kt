@@ -8,5 +8,9 @@ import org.koin.core.annotation.Singleton
 class Mongo(
     config: Config,
 ) {
+    companion object {
+        val MONGO_ID_FIELD = "_id"
+    }
+
     val client = MongoClient.create(config.mongoConfig.connectionString)
 }

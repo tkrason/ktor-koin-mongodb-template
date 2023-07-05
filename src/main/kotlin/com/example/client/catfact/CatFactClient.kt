@@ -29,5 +29,5 @@ class CatFactClient(
     suspend fun getCatFact(): CatFact = client
         .get("/fact")
         .body<CatFactDto>()
-        .let { CatFact(id = null, fact = it.fact) }
+        .let { CatFact(fact = it.fact) }
 }

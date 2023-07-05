@@ -2,11 +2,12 @@ package com.example.controller.catfact.dto
 
 import com.example.model.CatFact
 import kotlinx.serialization.Serializable
+import org.bson.types.ObjectId
 
 @Serializable
-data class CatFactResponseDto(
+data class SaveCatFactRequestBodyListItem(
     val id: String?,
     val fact: String,
 )
 
-fun CatFact.toDto() = CatFactResponseDto(id = id?.toHexString(), fact = fact)
+fun SaveCatFactRequestBodyListItem.toModel() = CatFact(id = id?.let { ObjectId(id) }, fact = fact)
