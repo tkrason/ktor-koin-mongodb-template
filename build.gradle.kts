@@ -46,6 +46,9 @@ dependencies {
 
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
 
+    // For the Frontend controller, delete if you will not be using HTML templating in your app
+    implementation("io.ktor:ktor-server-html-builder:$ktor_version")
+
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
     implementation("io.ktor:ktor-serialization-jackson:2.3.1")

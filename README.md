@@ -83,6 +83,8 @@ And as a last step, create controller:
 @Singleton(binds = [Controller::class]) // has to bind Controller::class in order to auto-create routes
 class CatFactController(
     private val catFactService: CatFactService, // we will be using previously created cat sercive
+    private val useBearerAuth: Boolean // if true, Bearer token auth is turned on automatically. 
+    // If false no auth is provided. You can add your auth in additionalRoutesForRegistration()
 ) : RestController<
         CatFact, // MODEL -> The Model that we are using 
         SaveCatFactRequestBodyListItem, // REQUEST_DTO -> Class that will be treated as incoming JSON

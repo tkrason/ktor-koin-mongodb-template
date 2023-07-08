@@ -6,7 +6,7 @@ import org.bson.types.ObjectId
 
 @Serializable
 data class SaveCatFactRequestBodyListItem(
-    val id: String?,
+    val id: String? = null,
     val fact: String,
 )
 
